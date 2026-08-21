@@ -1,10 +1,16 @@
 import typer
 
-from .agent_finetuning.commands import agent_finetuning_app
 from .config import Config, DEFAULT_BASE_URL, save_config
+from .environment import environment_app
+from .optimize import optimize_app
+from .router import router_app
+from .task import task_app
 
 app = typer.Typer(add_completion=False, help="IronLabs platform CLI.")
-app.add_typer(agent_finetuning_app, name="agent-finetuning")
+app.add_typer(task_app, name="task")
+app.add_typer(environment_app, name="environment")
+app.add_typer(optimize_app, name="optimize")
+app.add_typer(router_app, name="router")
 
 
 @app.command()
