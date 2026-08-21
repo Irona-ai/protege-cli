@@ -13,13 +13,23 @@ The IronLabs platform CLI:
 
 **Requirements:** Python 3.10+, an IronLabs Studio account.
 
+## Concepts
+
+| Term | What it is |
+|---|---|
+| **Task** | A reusable bundle — `agent.py`, `eval.py`, `dataset.json` — that a job optimizes. |
+| **Job** | One optimization run against one or more target models, launched from a Task or a zip. |
+| **Agent** | One job's result for a single target model — has its own id, code, and score. |
+| **Environment** | A named, encrypted key-set (e.g. `OPENAI_API_KEY`) a Task can attach to. |
+| **Router** | A trained model that picks the best target model for a given prompt. |
+
 ## Getting Started
 
 ```
 pip install protege
 ```
 
-Create an API key from [IronLabs Studio](https://stg-studio.irona.ai/) →
+Create an API key from [IronLabs Studio](https://stg-studio.irona.ai/) 
 → API Keys → Create New API Key, then log in:
 
 ```
@@ -101,9 +111,8 @@ specific agent's `run_batch` needs yourself before running it locally.
 
 ## Environments
 
-An `environment` is a named, encrypted key-set (e.g. `OPENAI_API_KEY`) that a
-Task can attach to. It's shared infrastructure, not specific to agent
-fine-tuning:
+An `environment` is a named, encrypted key-set that a Task can attach to.
+It's shared infrastructure:
 
 ```
 protege environment create my-env --key OPENAI_API_KEY=sk-... --key OTHER=value
@@ -113,8 +122,19 @@ protege task create ./agent.zip --env-id <env-id>
 ## Custom Router
 
 Train a router that picks the best model for each prompt, from labeled
-prompt-to-model examples. Training needs a balance above $0.50; inference
-needs a balance above $0.
+prompt-to-model examples:
+
+```json
+{
+  "problems": [
+    {
+      "problem_key": "p1",
+      "problem": "Write a simple hello world function",
+      "correct_models": ["openai/gpt-4o-mini", "qwen3.5-9b"]
+    }
+  ]
+}
+```
 
 ```
 protege router train --data-file ./training.json
@@ -125,7 +145,7 @@ Once `router status` shows a router id, query it:
 
 ```
 $ protege router infer <router-id> --prompt "Explain quantum computing in detail"
-top_model: anthropic/claude-3-5-sonnet-20241022
+top_model: qwen3.5-9b
 top_prob: 0.83
 ```
 
